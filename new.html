@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Expense Tracker</h2>
+        <h3>Balance: <span id="balance">₹0.00</span></h3>
+
+        <!-- Income Form -->
+        <div class="form-section">
+            <h3>Add Income</h3>
+            <form id="incomeForm">
+                <label>Amount:</label>
+                <input type="number" id="incomeAmount" required><br>
+                <label>Date:</label>
+                <input type="date" id="incomeDate" required><br>
+                <label>Type:</label>
+                <input type="text" id="incomeType" required><br>
+                <label>Description:</label>
+                <input type="text" id="incomeDescription" required><br>
+                <button type="submit">Add Income</button>
+            </form>
+        </div>
+
+        <!-- Expense Form -->
+        <div class="form-section">
+            <h3>Add Expense</h3>
+            <form id="expenseForm">
+                <label>Amount:</label>
+                <input type="number" id="expenseAmount" required><br>
+                <label>Date:</label>
+                <input type="date" id="expenseDate" required><br>
+                <label>Type:</label>
+                <input type="text" id="expenseType" required><br>
+                <label>Category:</label>
+                <input type="text" id="expenseCategory" required><br>
+                <label>Description:</label>
+                <input type="text" id="expenseDescription" required><br>
+                <button type="submit">Add Expense</button>
+            </form>
+        </div>
+
+        <!-- Income and Expense Lists -->
+        <div class="lists-section">
+            <h3>Incomes</h3>
+            <ul id="incomeList"></ul>
+
+            <h3>Expenses</h3>
+            <ul id="expenseList"></ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
