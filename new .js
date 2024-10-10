@@ -1,79 +1,97 @@
-// Track balance, incomes, and expenses
-let balance = 0;
-let incomes = [];
-let expenses = [];
+// Variables
+const loginForm = document.getElementById("login-form");
+const appContainer = document.getElementById("app-container");
+const userDisplay = document.getElementById("user-display");
+const form = document.getElementById("form");
+const text = document.getElementById("text");
+const amount = document.getElementById("amount");
+const category = document.getElementById("category");
+const dateInput = document.getElementById("date");
+const list = document.getElementById("list");
+const balance = document.getElementById("balance");
+const money_plus = document.getElementById("money-plus");
+const money_minus = document.getElementById("money-minus");
 
-// Select DOM elements
-const balanceEl = document.getElementById('balance');
-const incomeListEl = document.getElementById('incomeList');
-const expenseListEl = document.getElementById('expenseList');
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
-// Income Form Submission
-document.getElementById('incomeForm').addEventListener('submit', (event) => {
-    event.preventDefault();
+// Login function
+loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const user = username.value.trim();
+    const pass = password.value.trim();
     
-    // Retrieve values from form
-    const amount = parseFloat(document.getElementById('incomeAmount').value);
-    const date = document.getElementById('incomeDate').value;
-    const type = document.getElementById('incomeType').value;
-    const description = document.getElementById('incomeDescription').value;
-
-    // Update data and balance
-    incomes.push({ amount, date, type, description });
-    balance += amount;
-
-    // Update display
-    updateBalance();
-    displayIncomes();
-
-    // Clear form
-    event.target.reset();
+    if (user && pass) {
+        userDisplay.innerText = user;
+        appContainer.classList.remove("hidden");
+        loginForm.parentElement.classList.add("hidden");
+        init();
+    } else {
+        alert("Please enter a valid username and password");
+    }
 });
 
-// Expense Form Submission
-document.getElementById('expenseForm').addEventListener('submit', (event) => {
-    event.preventDefault();
+// Transaction function
+form.addEventListener("submit", addTransaction);
+
+function addTransaction(e) {
+    e.preventDefault();
+    if (text.value.trim() === "" || amount.value.trim() === "") {
+        alert("Please add text and amount");
+    } else {
+        const transaction = {
+            id: generateID(),
+            text: text.value,
+            amount: +amount.value,
+            category: category.value,
+            date: dateInput.value || new Date().toLocaleDateString()
+        };
+        transactions.push(transaction);
+        updateDOM(transaction);
+        updateValues();
+        saveToLocalStorage();
+        text.value = "";
+        amount.value = "";
+        dateInput.value = "";
+    }
+}
+
+function generateID() {
+    return Math.floor(Math.random() * 1000000000);
+}
+
+function updateDOM(transaction) {
+    const sign = transaction.amount < 0 ? "-" : "+";
+    const item = document.createElement("li");
+    item.classList.add(transaction.amount < 0 ? "minus" : "plus");
+    item.innerHTML = `${transaction.text} <span>${sign}${Math.abs(transaction.amount)} (${transaction.category}) on ${transaction.date}</span> 
+        <button class="delete-btn" onclick="removeTransaction(${transaction.id})">x</button>`;
+    list.appendChild(item);
+}
+
+function updateValues() {
+    const amounts = transactions.map(transaction => transaction.amount);
+    const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+    const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
+    const expense = amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0).toFixed(2) * -1;
     
-    // Retrieve values from form
-    const amount = parseFloat(document.getElementById('expenseAmount').value);
-    const date = document.getElementById('expenseDate').value;
-    const type = document.getElementById('expenseType').value;
-    const category = document.getElementById('expenseCategory').value;
-    const description = document.getElementById('expenseDescription').value;
-
-    // Update data and balance
-    expenses.push({ amount, date, type, category, description });
-    balance -= amount;
-
-    // Update display
-    updateBalance();
-    displayExpenses();
-
-    // Clear form
-    event.target.reset();
-});
-
-// Update balance display
-function updateBalance() {
-    balanceEl.textContent = `₹${balance.toFixed(2)}`;
+    balance.innerText = `$${total}`;
+    money_plus.innerText = `+ $${income}`;
+    money_minus.innerText = `- $${expense}`;
 }
 
-// Display incomes
-function displayIncomes() {
-    incomeListEl.innerHTML = '';
-    incomes.forEach((income) => {
-        const li = document.createElement('li');
-        li.textContent = `₹${income.amount} on ${income.date} [${income.type}] - ${income.description}`;
-        incomeListEl.appendChild(li);
-    });
+function removeTransaction(id) {
+    transactions = transactions.filter(transaction => transaction.id !== id);
+    saveToLocalStorage();
+    init();
 }
 
-// Display expenses
-function displayExpenses() {
-    expenseListEl.innerHTML = '';
-    expenses.forEach((expense) => {
-        const li = document.createElement('li');
-        li.textContent = `₹${expense.amount} on ${expense.date} [${expense.category}] - ${expense.type}`;
-        expenseListEl.appendChild(li);
-    });
+function saveToLocalStorage() {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
 }
+
+function init() {
+    list.innerHTML = "";
+    transactions.forEach(updateDOM);
+    updateValues();
+}
+
